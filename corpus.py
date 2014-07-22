@@ -1,29 +1,36 @@
 import os
 import time
 
-from bson.objectid import ObjectId
 from pymongo import MongoClient
 from nltk.stem.wordnet import WordNetLemmatizer
 
 
-dbTags = MongoClient("mongodb://localhost:27030/").Tags
+connection = "mongodb://localhost:27030/"
+dbTags = MongoClient(connection).Tags
+
 reviews_cursor = dbTags.Reviews.find()
 reviewsCount = reviews_cursor.count()
-done = 0
 reviews_cursor.batch_size(5000)
-start = time.time()
+
 lem = WordNetLemmatizer()
+
+done = 0
+start = time.time()
+
 for review in reviews_cursor:
     nouns = []
-    words = [word for word in review["Words"] if word["Pos"] in ["NN", "NNS"]]
+    words = [word for word in review["words"] if word["pos"] in ["NN", "NNS"]]
+
     for word in words:
-        nouns.append(lem.lemmatize(word["Word"]))
-    result = " ".join(nouns)
+        nouns.append(lem.lemmatize(word["word"]))
 
     dbTags.Corpus.insert({
-        "ReviewId": ObjectId(review["_id"]),
-        "Words": result
+        "reviewId": review["reviewId"],
+        "business": review["business"],
+        "text": review["text"],
+        "words": nouns
     })
+
     done += 1
     if done % 100 == 0:
         end = time.time()
