@@ -56,3 +56,4 @@ docs/_build/
 examples/
 models/
 providers/
+yelp/dataset/
