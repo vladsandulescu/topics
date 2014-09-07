@@ -1,10 +1,11 @@
 import logging
 
 import gensim
-
 from gensim.corpora import BleiCorpus
 from gensim import corpora
 from pymongo import MongoClient
+
+from settings import Settings
 
 
 class Corpus(object):
@@ -60,8 +61,9 @@ def main():
     lda_num_topics = 50
     lda_model_path = "models/lda_model_50_topics.lda"
 
-    dbTags = MongoClient("mongodb://localhost:27030/").Tags
-    reviews_cursor = dbTags.Corpus.find()
+    corpus_collection = MongoClient(Settings.MONGO_CONNECTION_STRING)[Settings.TAGS_DATABASE][
+        Settings.CORPUS_COLLECTION]
+    reviews_cursor = corpus_collection.find()
 
     dictionary = Dictionary(reviews_cursor, dictionary_path).build()
     Corpus(reviews_cursor, dictionary, corpus_path).serialize()
