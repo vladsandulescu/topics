@@ -4,11 +4,13 @@ import time
 from pymongo import MongoClient
 from nltk.stem.wordnet import WordNetLemmatizer
 
+from settings import Settings
 
-connection = "mongodb://localhost:27030/"
-dbTags = MongoClient(connection).Tags
 
-reviews_cursor = dbTags.Reviews.find()
+tags_collection = MongoClient(Settings.MONGO_CONNECTION_STRING)[Settings.TAGS_DATABASE][Settings.REVIEWS_COLLECTION]
+corpus_collection = MongoClient(Settings.MONGO_CONNECTION_STRING)[Settings.TAGS_DATABASE][Settings.CORPUS_COLLECTION]
+
+reviews_cursor = tags_collection.find()
 reviewsCount = reviews_cursor.count()
 reviews_cursor.batch_size(5000)
 
@@ -24,7 +26,7 @@ for review in reviews_cursor:
     for word in words:
         nouns.append(lem.lemmatize(word["word"]))
 
-    dbTags.Corpus.insert({
+    corpus_collection.insert({
         "reviewId": review["reviewId"],
         "business": review["business"],
         "text": review["text"],
