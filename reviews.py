@@ -4,12 +4,14 @@ import time
 from pymongo import MongoClient
 import nltk
 
+from settings import Settings
 
-connection = "mongodb://localhost:27030/"
-dbReviews = MongoClient(connection).Reviews
-dbTags = MongoClient(connection).Tags
 
-reviews_cursor = dbReviews.Reviews.find()
+reviews_collection = MongoClient(Settings.MONGO_CONNECTION_STRING)[Settings.REVIEWS_DATABASE][
+    Settings.REVIEWS_COLLECTION]
+tags_collection = MongoClient(Settings.MONGO_CONNECTION_STRING)[Settings.TAGS_DATABASE][Settings.REVIEWS_COLLECTION]
+
+reviews_cursor = reviews_collection.find()
 reviewsCount = reviews_cursor.count()
 reviews_cursor.batch_size(1000)
 
@@ -33,7 +35,7 @@ for review in reviews_cursor:
         for word, tag in tagged_text:
             words.append({"word": word, "pos": tag})
 
-    dbTags.Reviews.insert({
+    tags_collection.insert({
         "reviewId": review["reviewId"],
         "business": review["business"],
         "text": review["text"],
