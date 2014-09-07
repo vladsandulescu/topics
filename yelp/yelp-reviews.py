@@ -4,9 +4,12 @@ import json
 
 from pymongo import MongoClient
 
+from settings import Settings
 
-dbReviews = MongoClient("mongodb://localhost:27030/").Reviews
-dataset_file = 'dataset/yelp_phoenix_academic_dataset'
+
+dataset_file = Settings.DATASET_FILE
+reviews_collection = MongoClient(Settings.MONGO_CONNECTION_STRING)[Settings.REVIEWS_DATABASE][
+    Settings.REVIEWS_COLLECTION]
 
 count = 0
 done = 0
@@ -23,7 +26,7 @@ with open(dataset_file) as dataset:
         except ValueError:
             print 'Oops!'
         if data["type"] == "review":
-            dbReviews.Reviews.insert({
+            reviews_collection.insert({
                 "reviewId": data["review_id"],
                 "business": data["business_id"],
                 "text": data["text"]
