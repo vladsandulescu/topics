@@ -67,7 +67,7 @@ def main():
 
     jobs = []
     for i in range(workers):
-        p = multiprocessing.Process(target=worker, args=((i + 1), i * batch, 2000))
+        p = multiprocessing.Process(target=worker, args=((i + 1), i * batch, count / workers))
         jobs.append(p)
         p.start()
 
