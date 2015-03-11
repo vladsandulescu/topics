@@ -64,10 +64,14 @@ def main():
     count = reviews_cursor.count()
     workers = 3
     batch = count / workers
+    left = count % workers
 
     jobs = []
     for i in range(workers):
-        p = multiprocessing.Process(target=worker, args=((i + 1), i * batch, count / workers))
+        size = count / workers
+        if i == (workers - 1):
+            size += left
+        p = multiprocessing.Process(target=worker, args=((i + 1), i * batch, size))
         jobs.append(p)
         p.start()
 
